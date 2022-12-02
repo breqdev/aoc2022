@@ -8,5 +8,5 @@ for line in data:
     else:
         elves.append(0)
 
-# print(max(elves))
+print(max(elves))
 print(sum(sorted(elves, reverse=True)[:3]))
