@@ -24,10 +24,8 @@ for column in range(len(grid[0])):
     highest = -1
     for row in range(len(grid)):
         height = grid[row][column]
-        print(f"Row {row} col {column} height {height} highest {highest}")
         if height > highest:
             highest = height
-            print("marking visible")
             visible[row][column] = 1
 
 # look down each column from the bottom
@@ -39,6 +37,40 @@ for column in range(len(grid[0])):
             highest = height
             visible[row][column] = 1
 
-for row in visible:
-    print("".join(str(h) for h in row))
+# for row in visible:
+#     print("".join(str(h) for h in row))
 print(sum(sum(row) for row in visible))
+
+scenic_scores = [[0 for _ in range(len(grid[0]))] for _ in range(len(grid))]
+
+for y, row in enumerate(grid):
+    for x, height in enumerate(row):
+        right_scenic_score = 0
+        for i in range(x + 1, len(row)):
+            right_scenic_score += 1
+            if row[i] >= height:
+                break
+
+        left_scenic_score = 0
+        for i in range(x - 1, -1, -1):
+            left_scenic_score += 1
+            if row[i] >= height:
+                break
+
+        down_scenic_score = 0
+        for i in range(y + 1, len(grid)):
+            down_scenic_score += 1
+            if grid[i][x] >= height:
+                break
+
+        up_scenic_score = 0
+        for i in range(y - 1, -1, -1):
+            up_scenic_score += 1
+            if grid[i][x] >= height:
+                break
+
+        scenic_scores[y][x] = right_scenic_score * left_scenic_score * down_scenic_score * up_scenic_score
+
+# for row in scenic_scores:
+#     print("\t".join(str(h) for h in row))
+print(max(max(row) for row in scenic_scores))
