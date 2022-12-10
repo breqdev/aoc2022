@@ -7,50 +7,55 @@ for line in lines:
     for _ in range(int(distance)):
         moves.append(direction)
 
-head_position = (0, 0)
-tail_position = (0, 0)
+joints = [(0, 0) for _ in range(10)]
 
 positions = set()
-positions.add(tail_position)
+positions.add(joints[-1])
 
 for direction in moves:
+    # move the head
+    head = joints[0]
     if direction == "U":
-        head_position = (head_position[0], head_position[1] + 1)
+        joints[0] = (head[0], head[1] + 1)
     elif direction == "D":
-        head_position = (head_position[0], head_position[1] - 1)
+        joints[0] = (head[0], head[1] - 1)
     elif direction == "L":
-        head_position = (head_position[0] - 1, head_position[1])
+        joints[0] = (head[0] - 1, head[1])
     elif direction == "R":
-        head_position = (head_position[0] + 1, head_position[1])
+        joints[0] = (head[0] + 1, head[1])
     else:
         raise ValueError("invalid direction " + direction)
 
-    if abs(tail_position[0] - head_position[0]) <= 1 and abs(tail_position[1] - head_position[1]) <= 1:
-        continue  # tail is within range
+    for i in range(1, len(joints)):
+        leading = joints[i - 1]
+        lagging = joints[i]
 
-    if tail_position[0] == head_position[0]:
-        # tail needs to move vertically
-        if tail_position[1] < head_position[1]:
-            tail_position = (tail_position[0], tail_position[1] + 1)
-        elif tail_position[1] > head_position[1]:
-            tail_position = (tail_position[0], tail_position[1] - 1)
-    elif tail_position[1] == head_position[1]:
-        # tail needs to move horizontally
-        if tail_position[0] < head_position[0]:
-            tail_position = (tail_position[0] + 1, tail_position[1])
-        elif tail_position[0] > head_position[0]:
-            tail_position = (tail_position[0] - 1, tail_position[1])
-    else:
-        # tail needs to move diagonally
-        if tail_position[0] < head_position[0] and tail_position[1] < head_position[1]:
-            tail_position = (tail_position[0] + 1, tail_position[1] + 1)
-        elif tail_position[0] < head_position[0] and tail_position[1] > head_position[1]:
-            tail_position = (tail_position[0] + 1, tail_position[1] - 1)
-        elif tail_position[0] > head_position[0] and tail_position[1] < head_position[1]:
-            tail_position = (tail_position[0] - 1, tail_position[1] + 1)
-        elif tail_position[0] > head_position[0] and tail_position[1] > head_position[1]:
-            tail_position = (tail_position[0] - 1, tail_position[1] - 1)
+        if abs(lagging[0] - leading[0]) <= 1 and abs(lagging[1] - leading[1]) <= 1:
+            continue  # tail is within range
 
-    positions.add(tail_position)
+        if lagging[0] == leading[0]:
+            # tail needs to move vertically
+            if lagging[1] < leading[1]:
+                joints[i] = (lagging[0], lagging[1] + 1)
+            elif lagging[1] > leading[1]:
+                joints[i] = (lagging[0], lagging[1] - 1)
+        elif lagging[1] == leading[1]:
+            # tail needs to move horizontally
+            if lagging[0] < leading[0]:
+                joints[i] = (lagging[0] + 1, lagging[1])
+            elif lagging[0] > leading[0]:
+                joints[i] = (lagging[0] - 1, lagging[1])
+        else:
+            # tail needs to move diagonally
+            if lagging[0] < leading[0] and lagging[1] < leading[1]:
+                joints[i] = (lagging[0] + 1, lagging[1] + 1)
+            elif lagging[0] < leading[0] and lagging[1] > leading[1]:
+                joints[i] = (lagging[0] + 1, lagging[1] - 1)
+            elif lagging[0] > leading[0] and lagging[1] < leading[1]:
+                joints[i] = (lagging[0] - 1, lagging[1] + 1)
+            elif lagging[0] > leading[0] and lagging[1] > leading[1]:
+                joints[i] = (lagging[0] - 1, lagging[1] - 1)
+
+    positions.add(joints[-1])
 
 print(len(positions))
