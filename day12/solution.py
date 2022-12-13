@@ -48,37 +48,56 @@ for y, row in enumerate(grid):
                 adjacency[(x, y)].add((x, y + 1))
 
 # use BFS
-parents = {}
-visited = set()
-worklist = queue.Queue()
+def bfs(start, end):
+    parents = {}
+    visited = set()
+    worklist = queue.Queue()
 
-parents[start] = None
-visited.add(start)
-worklist.put(start)
+    parents[start] = None
+    visited.add(start)
+    worklist.put(start)
 
-while not worklist.empty():
-    node = worklist.get()
+    while not worklist.empty():
+        node = worklist.get()
 
-    if node == end:
-        break
+        if node == end:
+            break
 
-    for neighbor in adjacency[node]:
-        if neighbor in visited:
-            continue
+        for neighbor in adjacency[node]:
+            if neighbor in visited:
+                continue
 
-        parents[neighbor] = node
-        visited.add(neighbor)
-        worklist.put(neighbor)
+            parents[neighbor] = node
+            visited.add(neighbor)
+            worklist.put(neighbor)
 
-# reconstruct the path from the parent table
-path = [end]
-while True:
-    parent = parents[path[-1]]
-    if parent:
-        path.append(parent)
-    else:
-        break
+    # reconstruct the path from the parent table
+    path = [end]
+    while True:
+        try:
+            parent = parents[path[-1]]
+        except KeyError:
+            return None
 
+        if parent:
+            path.append(parent)
+        else:
+            return path
+
+
+path = bfs(start, end)
 # print(path)
 # get the length
 print(len(path) - 1)
+
+# part 2
+shortest = float("inf")
+
+for ys, row in enumerate(grid):
+    for xs, height in enumerate(row):
+        if height == 0:
+            path = bfs((xs, ys), end)
+            if path:
+                shortest = min(shortest, len(path) - 1)
+
+print(shortest)
