@@ -1,4 +1,5 @@
 import queue
+import math
 
 with open("input.txt") as f:
     data = f.read()
@@ -9,6 +10,8 @@ items = []
 operations = []
 tests = []
 destinations = []
+
+lcm = 1
 
 for chunk in monkey_data:
     lines = chunk.splitlines()
@@ -22,6 +25,8 @@ for chunk in monkey_data:
             operations.append(lambda x,val=val: x + int(val))
         case ["*", val] if val.isdigit():
             operations.append(lambda x,val=val: x * int(val))
+            # lcm = math.lcm(lcm, int(val))
+            lcm = lcm * int(val)
         case ["+", "old"]:
             operations.append(lambda x: x + x)
         case ["*", "old"]:
@@ -30,6 +35,7 @@ for chunk in monkey_data:
             raise ValueError(f"Unexpected operation: {' '.join(operation)}")
 
     divisor = int(lines[3].strip().removeprefix("Test: divisible by "))
+    lcm = lcm * divisor
     tests.append(lambda x,divisor=divisor: x % divisor == 0)
 
     true_throw = int(lines[4].strip().removeprefix("If true: throw to monkey "))
@@ -38,10 +44,12 @@ for chunk in monkey_data:
 
 inspections = [0 for _ in items]
 
-for round_idx in range(20):
-    print(f"Round {round_idx}:")
+lcm = lcm ** 2
+
+for round_idx in range(10000):
+    # print(f"Round {round_idx}:")
     for monkey_idx in range(len(items)):
-        print(f"  Monkey {monkey_idx}:")
+        # print(f"  Monkey {monkey_idx}:")
         monkey_items = queue.Queue()
         for item in items[monkey_idx]:
             monkey_items.put(item)
@@ -52,29 +60,40 @@ for round_idx in range(20):
             # monkey examines the item
             item = monkey_items.get()
             inspections[monkey_idx] += 1
-            print(f"    Monkey inspects an item with a worry level of {item}.")
+            # print(f"    Monkey inspects an item with a worry level of {item}.")
+
+            if item % lcm != item:
+                pass
+                # print("    ITEM IS TOO BIG")
+
+            # keep the level manageable
+            item = item % lcm
+            # print(f"      Keep the levels manageable. Worry level is mod {lcm} to {item}.")
+
+            assert operations[monkey_idx](item) % lcm == operations[monkey_idx](item % lcm) % lcm
 
             # monkey performs its operation to the worry value
             item = operations[monkey_idx](item)
-            print(f"      Worry level becomes {item}.")
+            # print(f"      Worry level becomes {item}.")
 
             # monkey gets bored with the item, worry level // 3
-            item = item // 3
-            print(f"      Monkey gets bored with item. Worry level is divided by 3 to {item}.")
+            # item = item // 3
+            # # print(f"      Monkey gets bored with item. Worry level is divided by 3 to {item}.")
+
 
             # monkey tests the item
             result = tests[monkey_idx](item)
-            print(f"      Test returns {result}.")
+            # print(f"      Test returns {result}.")
 
             # monkey throws the item
             dest_idx = destinations[monkey_idx][result]
             items[dest_idx].append(item)
-            print(f"      Item with worry level {item} is thrown to monkey {dest_idx}.")
+            # print(f"      Item with worry level {item} is thrown to monkey {dest_idx}.")
 
 
-print(items)
-print()
-print(inspections)
+# print(items)
+# print()
+# print(inspections)
 
 first, second = sorted(inspections, reverse=True)[:2]
 print(first * second)
