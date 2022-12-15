@@ -23,11 +23,19 @@ for line in lines:
 
 print(paths)
 
+deepest += 2  # floor
+
+farthest_left = min(farthest_left, 500 - deepest)
+farthest_right = max(farthest_right, 500 + deepest)
+
 x_start = farthest_left
 width = farthest_right - farthest_left + 1
 height = deepest + 1
 
 grid = [["." for _ in range(width)] for _ in range(height)]
+
+for x in range(width):
+    grid[deepest][x] = "#"
 
 for path in paths:
     for first, second in zip(path[:-1], path[1:]):
@@ -42,29 +50,41 @@ print("\n".join("".join(row) for row in grid))
 # sand
 drop_count = 0
 
-while True:
+
+def drop_sand():
     sand_pos = (500, 0)
 
+    if grid[sand_pos[1]][sand_pos[0] - x_start] != ".":
+        # Sand source is completely blocked
+        return False
+
     while sand_pos[1] < deepest:
-        # Try to drop directly below
         if grid[sand_pos[1] + 1][sand_pos[0] - x_start] == ".":
+            # Try to drop directly below
             sand_pos = (sand_pos[0], sand_pos[1] + 1)
 
-        # Try to drop diagonally to the left
         elif grid[sand_pos[1] + 1][sand_pos[0] - 1 - x_start] == ".":
+            # Try to drop diagonally to the left
             sand_pos = (sand_pos[0] - 1, sand_pos[1] + 1)
 
-        # Try to drop diagonally to the right
         elif grid[sand_pos[1] + 1][sand_pos[0] + 1 - x_start] == ".":
+            # Try to drop diagonally to the right
             sand_pos = (sand_pos[0] + 1, sand_pos[1] + 1)
 
         # we found a resting place
         else:
             grid[sand_pos[1]][sand_pos[0] - x_start] = "o"
-            drop_count += 1
-            break
+            return True
     else:
         # dropped into the abyss
+        return False
+
+
+while True:
+    result = drop_sand()
+    if result:
+        drop_count += 1
+    else:
         break
 
 print(drop_count)
