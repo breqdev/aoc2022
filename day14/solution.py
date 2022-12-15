@@ -34,6 +34,7 @@ height = deepest + 1
 
 grid = [["." for _ in range(width)] for _ in range(height)]
 
+# floor, for part 2
 for x in range(width):
     grid[deepest][x] = "#"
 
